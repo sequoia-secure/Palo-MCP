@@ -1,34 +1,36 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { executeOpCommand, getConfig, formatResponse, resolveTarget, isApiError } from "../api/client.js";
-import { firewallName } from "../schemas/panos.js";
+import { firewallName, deviceSerial } from "../schemas/panos.js";
 
 export function registerUserIdTools(server: McpServer) {
   server.tool(
     "get_userid_mappings",
-    "[READ-ONLY] Retrieves IP-to-user mappings from User-ID, showing which users are mapped to which IP addresses. Executes: show user ip-user-mapping all.",
+    "[READ-ONLY] Retrieves IP-to-user mappings from User-ID, showing which users are mapped to which IP addresses. Executes: show user ip-user-mapping all. Set device_serial to run it on a Panorama-managed firewall.",
     {
       firewall: firewallName,
+      device_serial: deviceSerial,
     },
     { title: "Get User-ID Mappings", readOnlyHint: true, destructiveHint: false },
-    async ({ firewall }) => {
+    async ({ firewall, device_serial }) => {
       const target = resolveTarget(firewall);
       if (isApiError(target)) return formatResponse(target);
-      const result = await executeOpCommand("<show><user><ip-user-mapping><all></all></ip-user-mapping></user></show>", target);
+      const result = await executeOpCommand("<show><user><ip-user-mapping><all></all></ip-user-mapping></user></show>", target, device_serial);
       return formatResponse(result);
     }
   );
 
   server.tool(
     "get_userid_groups",
-    "[READ-ONLY] Retrieves user groups known to the firewall via User-ID. Executes: show user group list.",
+    "[READ-ONLY] Retrieves user groups known to the firewall via User-ID. Executes: show user group list. Set device_serial to run it on a Panorama-managed firewall.",
     {
       firewall: firewallName,
+      device_serial: deviceSerial,
     },
     { title: "Get User-ID Groups", readOnlyHint: true, destructiveHint: false },
-    async ({ firewall }) => {
+    async ({ firewall, device_serial }) => {
       const target = resolveTarget(firewall);
       if (isApiError(target)) return formatResponse(target);
-      const result = await executeOpCommand("<show><user><group><list></list></group></user></show>", target);
+      const result = await executeOpCommand("<show><user><group><list></list></group></user></show>", target, device_serial);
       return formatResponse(result);
     }
   );

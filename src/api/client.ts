@@ -119,14 +119,29 @@ export async function generateApiKey(host: string, username: string, password: s
   }
 }
 
-export async function executeOpCommand(cmd: string, target?: FirewallTarget): Promise<ApiResponse> {
+/**
+ * URL for an operational command. With `deviceSerial`, the configured host
+ * must be a Panorama: it runs the command on the managed firewall with that
+ * serial and returns that firewall's result.
+ */
+export function opCommandUrl(host: string, cmd: string, deviceSerial?: string): string {
+  let url = `https://${host}/api/?type=op&cmd=${encodeURIComponent(cmd)}`;
+  if (deviceSerial) url += `&target=${encodeURIComponent(deviceSerial)}`;
+  return url;
+}
+
+export async function executeOpCommand(
+  cmd: string,
+  target?: FirewallTarget,
+  deviceSerial?: string
+): Promise<ApiResponse> {
   if (!target) {
     const resolved = resolveTarget();
     if (isApiError(resolved)) return resolved;
     target = resolved;
   }
 
-  const url = `https://${target.host}/api/?type=op&cmd=${encodeURIComponent(cmd)}`;
+  const url = opCommandUrl(target.host, cmd, deviceSerial);
 
   try {
     return await makeRequest(url, target.apiKey, target.verifySSL);

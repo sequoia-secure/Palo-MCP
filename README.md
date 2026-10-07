@@ -152,6 +152,14 @@ When multiple entries are configured, every tool accepts a `firewall: <name>` pa
 
 > **Linux headless servers:** If no keychain daemon is available (e.g. servers without `libsecret`), API keys fall back to plaintext in `firewalls.json` with a warning. Restrict the file with `chmod 600 ~/.config/panos-mcp/firewalls.json` in that case.
 
+## Querying managed firewalls through Panorama
+
+When the configured target is a Panorama, the read-only operational tools can run on any firewall it manages without a separate API key for each one. Pass that firewall's serial number as `device_serial`; Panorama runs the command on the firewall and returns its result (the XML API's `target=<serial>` parameter). Get serials from `panorama_get_managed_devices`.
+
+Supported on: `get_interfaces`, `get_routing_table`, `get_arp_table`, `get_dhcp_leases`, `get_firewall_info`, `get_ha_status`, `get_active_sessions`, `get_system_resources`, `get_licenses`, `get_license_usage`, `get_content_versions`, `get_antivirus_version`, `get_wildfire_status`, `get_userid_mappings`, `get_userid_groups`, `get_ipsec_tunnels`, `get_globalprotect_users`.
+
+It is deliberately not offered on any tool that changes configuration, and the serial must be letters and digits only. The Panorama API key needs an admin role that can reach the managed devices.
+
 ## Tool Categories
 
 | Category | Tools | Description |

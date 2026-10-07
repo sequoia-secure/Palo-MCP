@@ -1,20 +1,21 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { executeOpCommand, getConfig, setConfig, deleteConfig, formatResponse, resolveTarget, isApiError } from "../api/client.js";
-import { firewallName, xmlEscape } from "../schemas/panos.js";
+import { firewallName, deviceSerial, xmlEscape } from "../schemas/panos.js";
 
 export function registerNetworkTools(server: McpServer) {
   server.tool(
     "get_interfaces",
-    "[READ-ONLY] Retrieves all network interfaces with their status, IP addresses, and configuration. Executes: show interface all.",
+    "[READ-ONLY] Retrieves all network interfaces with their status, IP addresses, and configuration. Executes: show interface all. Set device_serial to run it on a Panorama-managed firewall.",
     {
       firewall: firewallName,
+      device_serial: deviceSerial,
     },
     { title: "Get Interfaces", readOnlyHint: true, destructiveHint: false },
-    async ({ firewall }) => {
+    async ({ firewall, device_serial }) => {
       const target = resolveTarget(firewall);
       if (isApiError(target)) return formatResponse(target);
-      const result = await executeOpCommand("<show><interface>all</interface></show>", target);
+      const result = await executeOpCommand("<show><interface>all</interface></show>", target, device_serial);
       return formatResponse(result);
     }
   );
@@ -36,30 +37,32 @@ export function registerNetworkTools(server: McpServer) {
 
   server.tool(
     "get_routing_table",
-    "[READ-ONLY] Retrieves the current routing table from the firewall. Executes: show routing route.",
+    "[READ-ONLY] Retrieves the current routing table from the firewall. Executes: show routing route. Set device_serial to run it on a Panorama-managed firewall.",
     {
       firewall: firewallName,
+      device_serial: deviceSerial,
     },
     { title: "Get Routing Table", readOnlyHint: true, destructiveHint: false },
-    async ({ firewall }) => {
+    async ({ firewall, device_serial }) => {
       const target = resolveTarget(firewall);
       if (isApiError(target)) return formatResponse(target);
-      const result = await executeOpCommand("<show><routing><route></route></routing></show>", target);
+      const result = await executeOpCommand("<show><routing><route></route></routing></show>", target, device_serial);
       return formatResponse(result);
     }
   );
 
   server.tool(
     "get_arp_table",
-    "[READ-ONLY] Retrieves ARP table entries from the firewall. Executes: show arp entry all.",
+    "[READ-ONLY] Retrieves ARP table entries from the firewall. Executes: show arp entry all. Set device_serial to run it on a Panorama-managed firewall.",
     {
       firewall: firewallName,
+      device_serial: deviceSerial,
     },
     { title: "Get ARP Table", readOnlyHint: true, destructiveHint: false },
-    async ({ firewall }) => {
+    async ({ firewall, device_serial }) => {
       const target = resolveTarget(firewall);
       if (isApiError(target)) return formatResponse(target);
-      const result = await executeOpCommand("<show><arp><entry>all</entry></arp></show>", target);
+      const result = await executeOpCommand("<show><arp><entry>all</entry></arp></show>", target, device_serial);
       return formatResponse(result);
     }
   );
@@ -81,15 +84,16 @@ export function registerNetworkTools(server: McpServer) {
 
   server.tool(
     "get_dhcp_leases",
-    "[READ-ONLY] Retrieves DHCP server lease information. Executes: show dhcp server lease all.",
+    "[READ-ONLY] Retrieves DHCP server lease information. Executes: show dhcp server lease all. Set device_serial to run it on a Panorama-managed firewall.",
     {
       firewall: firewallName,
+      device_serial: deviceSerial,
     },
     { title: "Get DHCP Leases", readOnlyHint: true, destructiveHint: false },
-    async ({ firewall }) => {
+    async ({ firewall, device_serial }) => {
       const target = resolveTarget(firewall);
       if (isApiError(target)) return formatResponse(target);
-      const result = await executeOpCommand("<show><dhcp><server><lease>all</lease></server></dhcp></show>", target);
+      const result = await executeOpCommand("<show><dhcp><server><lease>all</lease></server></dhcp></show>", target, device_serial);
       return formatResponse(result);
     }
   );
