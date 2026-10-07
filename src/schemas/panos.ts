@@ -65,6 +65,24 @@ export const firewallName = z
   .optional()
   .describe("Target firewall name (from firewalls.json). Required when multiple firewalls are configured; optional otherwise.");
 
+/**
+ * Serial number of a firewall managed by the Panorama this server talks to.
+ * Panorama's XML API runs an operational command on that firewall instead of
+ * on itself when the request carries `target=<serial>`, so one Panorama
+ * credential can read every managed firewall. Restricted to alphanumerics: it
+ * goes into the request URL, and PAN-OS serials are numeric (hardware and
+ * most VMs) or alphanumeric.
+ */
+export const deviceSerial = z
+  .string()
+  .regex(/^[A-Za-z0-9]{1,32}$/, "Must be a firewall serial number (letters and digits only)")
+  .optional()
+  .describe(
+    "Serial number of a Panorama-managed firewall (see panorama_get_managed_devices). " +
+      "When set, Panorama runs this command on that firewall and returns its result. " +
+      "Omit to run it on the configured target itself."
+  );
+
 export const firewallHost = z
   .string()
   .min(1)
